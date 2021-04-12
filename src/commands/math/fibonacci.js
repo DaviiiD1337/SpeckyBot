@@ -1,8 +1,7 @@
 module.exports = {
     name: "fibonacci",
     description: "Gives you the fibonacci sequence!",
-    usage: "",
-    category: `math`,
+    category: "math",
     aliases: ["fibo"]
 }
 
@@ -13,7 +12,7 @@ module.exports.run = async (bot, msg) => {
     async function fibo(){
         const len = fibonacci.length;
         fibonacci.push(fibonacci[len-1]+fibonacci[len-2]);
-        string = `\`\`\`${fibonacci.join(" ")}\`\`\``;
+        string = fibonacci.join(" ");
         if(string.length >= 1980){
             fibonacci.pop();
             return;
@@ -23,5 +22,5 @@ module.exports.run = async (bot, msg) => {
     }
     await fibo();
 
-    return msg.channel.send(`\`\`\`${fibonacci.join(" ")}\`\`\``)
+    return msg.channel.send(fibonacci.join(" "),{code:'js'})
 }

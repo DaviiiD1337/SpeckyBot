@@ -1,18 +1,10 @@
 module.exports = {
     name: "delet",
     description: "Deletes the last 3 messages!",
-    usage: "",
-    category: `admin`,
+    category: "admin",
     aliases: ["..","."],
-    perms: ['MANAGE_MESSAGES'],
-    cmdperms: ['MANAGE_MESSAGES']
+    userPerms: ['MANAGE_MESSAGES'],
+    botPerms: ['MANAGE_MESSAGES']
 }
 
-module.exports.run = async (bot, msg) => {
-    await msg.channel.fetchMessages({ limit: 3 })
-    .then(messages => {
-        messages.forEach(async message => {
-            message.delete();
-        })
-    })
-}
+module.exports.run = (bot, msg) => msg.channel.bulkDelete(3);

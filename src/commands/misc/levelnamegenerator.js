@@ -3,37 +3,34 @@ module.exports = {
     description: "Generates a name for your Geometry Dash Level!",
     category: "misc",
     usage: "[name]",
+    flags: ['huge','svg','nocase'],
     aliases: ['lng']
 }
 
 const fetch = require('node-fetch');
 const Canvas = require('canvas');
-const fs = require('fs');
+const { join } = require('path');
+const save = global.modules.saveAsset;
 
 const listURL = "https://gdcolon.com/tools/gdname/list";
 const cornerURL = "https://gdbrowser.com/assets/corner.png";
 const refreshURL = "https://gdbrowser.com/assets/refresh.png";
 const pusabURL = "https://gdcolon.com/assets/Pusab.ttf";
 
-const promises = [];
-
-const fts = (url,fn) => fetch(url)
-.then(d => d.buffer())
-.then(l => fs.writeFileSync(`${__dirname}\\assets\\${fn}`,l));
-
-if(!fs.existsSync(__dirname+'\\assets')) fs.mkdirSync(__dirname+'\\assets');
-if(!fs.existsSync(__dirname+'\\assets\\corner.png')) promises.push(fts(cornerURL,'corner.png'));
-if(!fs.existsSync(__dirname+'\\assets\\refresh.png')) promises.push(fts(refreshURL,'refresh.png'));
-if(!fs.existsSync(__dirname+'\\assets\\pusab.ttf')) promises.push(fts(pusabURL,'pusab.ttf'));
+const promises = [
+    [cornerURL,'corner.png'],
+    [refreshURL,'refresh.png'],
+    [pusabURL,'pusab.ttf']
+].map(save);
 
 Promise.all(promises)
-.then(()=>Canvas.registerFont(__dirname+'\\assets\\pusab.ttf',{family: 'Pusab'}))
+.then(()=>Canvas.registerFont(join(process.cwd(),'assets','pusab.ttf'),{family: 'Pusab'}))
 .catch(()=>{});
 
-let corner, refresh;
-
 module.exports.run = async (bot, msg) => {
-    let { list } = this;
+    await Promise.all(promises);
+
+    let { list, corner, refresh } = this;
 
     if(!list)
         await fetch(listURL)
@@ -88,11 +85,19 @@ module.exports.run = async (bot, msg) => {
         })()}`;
     }
 
+    // MESSAGE FLAGS
+    const huge = msg.flag('huge');
+    const svg = msg.flag('svg');
+    const nocase = msg.flag('nocase');
+    const canvasSetup = huge ? [7680,4320] : [1280,720];
+    if(svg) canvasSetup.push('svg');
+
     // TRIM AND RANDOM CASE
-    name = name.trim().replace(/\s+/g,' ').randomCase();
+    name = name.trim().replace(bot.regex.spaces,' ')
+    if(!nocase) name = name.randomCase();
 
     // CANVAS SETUP
-    const canvas = Canvas.createCanvas(800,600);
+    const canvas = Canvas.createCanvas(...canvasSetup);
     const ctx = canvas.getContext('2d');
 
     // BACKGROUND
@@ -102,16 +107,42 @@ module.exports.run = async (bot, msg) => {
     ctx.fillStyle = gradient;
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
+    // MINOR UTILITIES
+    const min = Math.min(canvas.height,canvas.width);
+    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingEnabled = true;
+    const CScaleRatio = 600;
+    const RScaleRatio = 600;
+
     // CORNERS
-    if(!corner) corner = await Canvas.loadImage(__dirname+'\\assets\\corner.png');
-    ctx.drawImage(corner,0,canvas.height-corner.height);
+    if(!corner) corner = await Canvas.loadImage(global.assets.corner);
+    const CWidth = corner.width * min / CScaleRatio;
+    const CHeight = corner.height * min / CScaleRatio;
+    ctx.drawImage(
+        corner,
+        0,
+        canvas.height-CHeight,
+        CWidth, CHeight
+    );
     ctx.scale(-1,1);
-    ctx.drawImage(corner,-canvas.width,canvas.height-corner.height)
+    ctx.drawImage(
+        corner,
+        -canvas.width,
+        canvas.height-CHeight,
+        CWidth, CHeight
+    );
     ctx.scale(-1,1);
 
     // REFRESH
-    if(!refresh) refresh = await Canvas.loadImage(__dirname+'\\assets\\refresh.png');
-    ctx.drawImage(refresh,canvas.width/2-refresh.width/2,canvas.height*0.5);
+    if(!refresh) refresh = await Canvas.loadImage(global.assets.refresh);
+    const RWidth = refresh.width * min / RScaleRatio;
+    const RHeight = refresh.height * min / RScaleRatio;
+    ctx.drawImage(
+        refresh,
+        canvas.width/2 - RWidth/2,
+        canvas.height * 0.5,
+        RWidth, RHeight
+    );
 
     // TEXT
     ctx.textAlign = 'center';
@@ -135,5 +166,5 @@ module.exports.run = async (bot, msg) => {
     ctx.fillStyle = 'rgb(255,200,0)';
     ctx.fillText(name,...pos2,canvas.width);
 
-    return msg.channel.send(canvas.toBuffer().toAttachment('levelname.png'));
+    return msg.channel.send(canvas.toBuffer().toAttachment(`levelname.${svg?'svg':'png'}`));
 }

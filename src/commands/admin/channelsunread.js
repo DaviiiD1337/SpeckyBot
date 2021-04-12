@@ -1,19 +1,17 @@
 module.exports = {
     name: "channelsunread",
     description: "Turns every channel in an unread one!",
-    usage: "",
-    category: `admin`,
+    category: "admin",
     aliases: ["cur"],
-    perms: ['ADMINISTRATOR']
+    userPerms: ['ADMINISTRATOR']
 }
 
 module.exports.run = async (bot, msg) => {
-    try{
-        msg.delete();
-    }catch{}
-    msg.guild.channels.forEach(async channel => {
-        try{
-            channel.send('New').then(msg => msg.delete());
-        }catch{}
-    })
+    msg.guild.channels.cache
+    .forEach(c =>
+        c.send &&
+        c.send('New')
+        .then(msg => msg.delete())
+        .catch(()=>{})
+    )
 }

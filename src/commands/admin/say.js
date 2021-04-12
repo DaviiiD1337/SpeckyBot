@@ -1,14 +1,12 @@
 module.exports = {
     name: "say",
     description: "Lets the bot say something for you!",
-    usage: `<text> [#channel] [--emb/--sneak]`,
-    category: `admin`,
+    usage: `<text> [#channel]`,
+    category: "admin",
     aliases: ["send","announcement"],
-    perms: ['MANAGE_MESSAGES'],
+    userPerms: ['MANAGE_MESSAGES'],
     flags: ["channel","user","sneak","rcase","emb"]
 }
-
-const { RichEmbed } = require('discord.js');
 
 module.exports.run = async (bot, msg) => {
     let res = msg.cmdContent;
@@ -37,18 +35,16 @@ module.exports.run = async (bot, msg) => {
     }
 
     if(msg.flag("rcase")){
-        res = res.split('').map(function(l){
-            return l(['toUpperCase','toLowerCase'].pick())();
-        }).join('');
+        res = res.split('').map(l => l[['toUpperCase','toLowerCase'].pick()]()).join('');
     }
 
     if(msg.flag("emb")){
-        res = new RichEmbed()
+        res = bot.membed()
         .setDescription(res)
-        .setAuthor(user.username, user.avatarURL);
+        .setAuthor(user.username, user.displayAvatarURL());
     }
 
-    if(!res) return msg.channel.send("Message is too short.")
+    if(!res) return bot.cmdError("Message is too short.")
 
     channel.send(res)
 }

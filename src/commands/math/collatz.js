@@ -1,22 +1,17 @@
 module.exports = {
     name: "collatz",
     description: "Gives you the collatz sequence!",
-    usage: `[number]`,
-    category: `math`,
+    usage: "[number]",
+    category: "math",
     aliases: ["coll"]
 }
 
-
-const collatzPath = '.\\commands\\math\\data\\collatz.txt';
-const { writeFile, readFileSync } = require('fs');
+const qdb = require('quick.db');
+const misc = new qdb.table('misc');
 
 module.exports.run = async (bot, msg) => {
     const collatz = [];
-    let numb = 2;
-
-    try{
-        numb = Math.floor(Number(readFileSync(collatzPath,{encoding:'UTF8'}))) || 2;
-    }catch(e){}
+    let numb = misc.get('collatz') || 2;
 
     let startNumb = numb;
 
@@ -40,7 +35,6 @@ module.exports.run = async (bot, msg) => {
     }
     await coll();
 
-    if(startNumb) writeFile(collatzPath,startNumb+1,e=>e?console.error(e):null);
-
-    return msg.channel.send(`\`\`\`${collatz.join(" ")}\`\`\``);
+    if(startNumb) misc.set('collatz', startNumb + 1);
+    return msg.channel.send(collatz.join(" "),{code:'js'});
 }

@@ -1,13 +1,7 @@
 module.exports = (bot) => {
-    bot.debug = () => {
-        console.log(bot._debugN++)
-    }
+    bot.cmdError = (error) =>
+        new Promise((resolve, reject) => reject(`[EXPECTED] ${error}`))
 
-    bot.resetDebug = () => {
-        bot._debugN = 0;
-    }
-
-    bot.cmdError = (error) => {
-        return new Promise((resolve, reject) => reject(`[EXPECTED] ${error}`))
-    }
+    bot.cmdSuccess = (success) =>
+        new Promise((resolve,reject) => resolve(`[SUCCESS] ${success}`))
 }

@@ -1,17 +1,15 @@
 module.exports = {
     name: "trivia",
     description: "A random trivia question from the internet!",
-    usage: "",
-    category: `games`,
+    category: "games",
     aliases: ["trivi", "triv"]
 }
 
 const fetch = require('node-fetch');
-const { RichEmbed } = require('discord.js');
 const { compareTwoStrings } = require('string-similarity')
 
 module.exports.run = async (bot, msg) => {
-    const link =  'https://opentdb.com/api.php?amount=1&type=multiple&encode=base64'; 
+    const link =  'https://opentdb.com/api.php?amount=1&type=multiple&encode=base64';
     /*
     const response = await fetch(link);
     const json = await response.json();
@@ -35,13 +33,13 @@ module.exports.run = async (bot, msg) => {
                     data.incorrect_answers[times] = Buffer.from(inc, 'base64').toString()
                     times++;
                 });
-                const embed = new RichEmbed()
+                const embed = bot.membed()
                 .setTitle('Trivia Question!')
                 .addField('Category:', `${Buffer.from(data.category, 'base64').toString()}`)
                 .addField('Difficulty:', `${Buffer.from(data.difficulty, 'base64').toString()}`)
                 .addField('Question:', `${Buffer.from(data.question, 'base64').toString()}`)
                 .setFooter('Say "reveal" once you\'ve written the answer down! (You have 1 minute time)');
-                const embed2 = new RichEmbed()
+                const embed2 = bot.membed()
                 .setTitle('Trivia Question!')
                 .addField('Category:', `${Buffer.from(data.category, 'base64').toString()}`)
                 .addField('Difficulty:', `${Buffer.from(data.difficulty, 'base64').toString()}`)
@@ -50,7 +48,7 @@ module.exports.run = async (bot, msg) => {
                 .addField('Wrong Answers', `${data.incorrect_answers.join(", ")}`);
                 msg.channel.send(embed).then(async resp => {
 
-                    const filter =  m => ((m.content.toLowerCase().includes('reveal')) && (m.author.id == msg.author.id)) || 
+                    const filter =  m => ((m.content.toLowerCase().includes('reveal')) && (m.author.id == msg.author.id)) ||
                                     (compareTwoStrings(Buffer.from(data.correct_answer, 'base64').toString(), m.content) >= 0.7);
 
                     await msg.channel.awaitMessages(filter, {max: 1, time: 60000, errors: ['time']})

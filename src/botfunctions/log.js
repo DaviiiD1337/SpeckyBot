@@ -1,33 +1,19 @@
-const { appendFile, readFile, writeFile } = require('fs');
+const { promises: { appendFile }} = require('fs');
+const { join } = require('path');
 
 module.exports = (bot) => {
-    bot.log = async (content) => {
-        appendFile('..\\commands.log',`${content ?
-            String(content)
-            .replace(/[\x1b][[][0-9]{2}m/g,'')
-            .replace(/\t/g,' ').replace(/ +/g,' ')
-            : ''}\n`,
-        ()=>{});
+    bot.log = (cont) =>
+        new Promise((res,rej) => {
+            const content = cont ? String(cont) : '';
+            console.log(content.error)
+            const log = join(process.cwd(),'..','commands.log');
 
-        let file;
-
-        readFile('..\\commands.log', async (err,data)=>{
-
-            file = data.toString().split('\n');
-
-            if(file.length > 100000){
-                while(file.length > 99000){
-                    file.shift();
-                }
-                writeFile('..\\commands.log',file.join("\n"),()=>{})
-            }
-
+            appendFile(log,`${bot.regex ? content
+            .replace(bot.regex.logColors,'')
+            .replace(bot.regex.tabs,' ')
+            .replace(bot.regex.spaces,' ') : content
+            }\n`)
+            .then(()=>res())
+            .catch((err)=>rej(err))
         })
-
-        if(content){
-            console.log(String(content).error)
-        }else{
-            console.log()
-        }
-    }
 }

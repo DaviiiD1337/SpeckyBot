@@ -2,14 +2,14 @@
     name: "speckysays",
     description: "Users have to complete the challenges in order to survive!\nThanks to **Mantevian / Manteex** and **Spu7Nix / SputNix** for this awesome module!\nhttps://github.com/Mantevian/simonsaysbot",
     usage: `#[channel] [start time in seconds]`,
-    category: `games`,
+    category: "games",
     cooldown: 30000,
     aliases: ["simonsays", "simon"],
-    perms: ["MANAGE_MESSAGES"]
+    userPerms: ["MANAGE_MESSAGES"]
 }
 
-const { RichEmbed } = require('discord.js')
-const { runGame } = require('.\\SpeckySays\\game');
+const { join } = require('path');
+const { runGame } = require(join(__dirname,'SpeckySays','game'));
 
 module.exports.run = async (bot, msg) => {
     const { args } = msg;
@@ -36,7 +36,7 @@ module.exports.run = async (bot, msg) => {
     }
 
     // collect players
-    const startembed = new RichEmbed().setTitle("REACT TO THIS MESSAGE WITH 🎲 TO JOIN SIMON SAYS!")
+    const startembed = bot.membed().setTitle("REACT TO THIS MESSAGE WITH 🎲 TO JOIN SIMON SAYS!")
     .setDescription(`Hosted by ${msg.author}`)
     .setColor(msg.member.displayColor)
     .setFooter(`The game will start in ${Math.floor(time / 1000)} seconds.`)
@@ -48,8 +48,8 @@ module.exports.run = async (bot, msg) => {
         let players = []
         for (const reaction of collected.array()) {
             if(reaction.emoji.name == '🎲'){
-                const users = await reaction.fetchUsers()
-                players = players.concat(users.array())
+                const { users } = await reaction.fetch();
+                players = players.concat(users.cache.array())
             }
         }
         players = players.filter(player => !player.bot)
@@ -58,23 +58,19 @@ module.exports.run = async (bot, msg) => {
 
         channel.send(
             `The game is starting! Players: ${players.join(', ')}`,
-            new RichEmbed()
+            bot.membed()
             .setTitle('**Only follow my commands if it starts with "Simon says". \n If you fail, you are out of the game!**')
             .setColor('#77ECF2')
         )
 
         if(time > 30000 || players.length > 5){
-            await sleep(10000)
+            await bot.sleep(10000)
         } else {
-            await sleep(5000)
+            await bot.sleep(5000)
         }
 
         msg.delete()
         return runGame(channel, players, bot);
         // make game mechanics in game.js
     })
-}
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }

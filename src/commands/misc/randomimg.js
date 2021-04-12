@@ -2,11 +2,10 @@ module.exports = {
     name: "randomimg",
     description: "Gives you a random image from loremflickr.com!",
     usage: `<keyword>`,
-    category: `misc`,
+    category: "misc",
     aliases: ["randomimage","rimg"]
 }
 
-const { RichEmbed } = require("discord.js");
 const fetch = require('node-fetch');
 
 module.exports.run = async (bot, msg) => {
@@ -24,12 +23,12 @@ module.exports.run = async (bot, msg) => {
 
         const body = await (await fetch("https://loremflickr.com/json/p/1024/1024/"+kw)).json();
 
-        const embed = new RichEmbed()
+        const embed = bot.membed()
         .setColor(bot.config.color)
-        .setAuthor(`Random Image!`, msg.guild.iconURL)
+        .setAuthor(`Random Image!`, msg.guild.iconURL())
         .setImage(body.file)
         .setTimestamp()
-        .setFooter(`${bot.user.username}`, bot.user.displayAvatarURL)
+        .setFooter(`${bot.user.username}`, bot.user.displayAvatarURL())
 
         ms.edit(embed);
     })

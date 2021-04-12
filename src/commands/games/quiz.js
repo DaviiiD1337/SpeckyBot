@@ -1,37 +1,35 @@
 module.exports = {
     name: "quiz",
     description: "A random question with (usually) 4 responses!",
-    usage: "",
-    category: `games`,
+    category: "games",
     aliases: ["qui", "qz","quiz"]
 }
 
 const fetch = require('node-fetch');
-const { RichEmbed } = require('discord.js');
 const { compareTwoStrings } = require('string-similarity')
 
 function shuffle(array) {
     let currentIndex = array.length, temporaryValue, randomIndex;
-  
+
     // While there remain elements to shuffle...
     while (currentIndex !== 0) {
-  
+
         // Pick a remaining element...
         randomIndex = Math.floor(Math.random() * currentIndex);
         currentIndex -= 1;
-  
+
         // And swap it with the current element.
         temporaryValue = array[currentIndex];
         array[currentIndex] = array[randomIndex];
         array[randomIndex] = temporaryValue;
     }
-  
+
     return array;
 }
-  
+
 
 module.exports.run = async (bot, msg) => {
-    const link =  'https://opentdb.com/api.php?amount=1&type=multiple&encode=base64'; 
+    const link =  'https://opentdb.com/api.php?amount=1&type=multiple&encode=base64';
     /*    const response = await fetch(link);
     const json = await response.json();
     msg.channel.send(json);
@@ -54,13 +52,13 @@ module.exports.run = async (bot, msg) => {
                 });
                 data.correct_answer = Buffer.from(data.correct_answer, 'base64').toString();
 
-                const embed = new RichEmbed()
+                const embed = bot.membed()
                 .setTitle('Trivia Question!')
                 .addField('Category:', `${Buffer.from(data.category, 'base64').toString()}`)
                 .addField('Difficulty:', `${Buffer.from(data.difficulty, 'base64').toString()}`)
                 .addField('Question:', `${Buffer.from(data.question, 'base64').toString()}`)
                 .setTimestamp()
-                .addBlankField();
+                .addField('\u200b','\u200b');
 
                 const answs = ["0","1","2","3"];
                 shuffle(answs);
@@ -84,7 +82,7 @@ module.exports.run = async (bot, msg) => {
                     times++;
                 }
                 msg.channel.send(embed).then(async resp => {
-                    embed.addBlankField()
+                    embed.addField('\u200b','\u200b')
 
                     const filter =  m => m.author.id == msg.author.id;
                     await msg.channel.awaitMessages(filter, {max: 1, time: 60000, errors: ['time']})

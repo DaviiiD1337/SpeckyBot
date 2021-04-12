@@ -1,11 +1,10 @@
 module.exports = {
     name: "pussy",
     description: "Gives you a pussy!",
-    usage: "",
-    category: `nsfw`,
-    aliases: []
-}
-
-module.exports.run = async (bot, msg) => {
-    require('.\\functions\\img')(["pussy","pussyWankGif","pussyArt"],msg);
+    category: "nsfw",
+    aliases: ['kuni'],
+    template: 'nsfw',
+    data: {
+        methods: ["kuni","pussy","pwankg","pussyJpg","vagina","pantsu"]
+    }
 }

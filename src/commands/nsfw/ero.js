@@ -1,11 +1,10 @@
 module.exports = {
     name: "ero",
     description: "Gives you erotic images!",
-    usage: "",
-    category: `nsfw`,
-    aliases: ["erotic"]
-}
-
-module.exports.run = async (bot, msg) => {
-    require('.\\functions\\img')(["holoEro","eroFeet","ero","eroKitsune","eroKemonomimi","eroNeko","eroYuri"],msg);
+    category: "nsfw",
+    aliases: ["erotic"],
+    template: 'nsfw',
+    data: {
+        methods: ["ero","erofeet","erokitsu","erokemo","eroyuri","eroneko","holoero"]
+    }
 }

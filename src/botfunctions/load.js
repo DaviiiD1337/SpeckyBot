@@ -1,21 +1,24 @@
-module.exports = (bot) => {
-    bot.loadSettings = async () => {
-        ['user','server'].forEach(f => {
-            try{
-                bot.settings[f] = bot.require(`..\\db\\${f.charAt(0)}_settings`);
-            }catch(err){
-                // console.log(err)
-                console.log(`Your db\\${f.charAt(0)}_settings.json file looks like to be corrupted.\nPlease fix it before it becomes an issue.`.error)
-            }
-        })
-    }
+const {  readFile } = require('fs');
+const { join } = require('path');
 
-    bot.loadConfig = (bot) => {
-        delete require.cache[require.resolve('..\\..\\config.json')];
-        try{
-            bot.config = require('..\\..\\config.json');
-        }catch(err){
-            console.log("YOUR CONFIG.JSON FILE LOOKS LIKE TO BE CORRUPTED!\nPLEASE FIX IT BEFORE IT BECOMES AN ISSUE.".fatal)
-        }
+module.exports = (bot) => {
+    bot.loadConfig = async () => {
+        const path = join(process.cwd(),"..","config.json");
+        return new Promise((res,rej) => {
+            readFile(path,{encoding:'utf-8'},(err,data) => {
+                if(err) rej(err);
+                try{
+                    Object.defineProperty(bot, 'config', {
+                        enumerable: false,
+                        configurable: true,
+                        writable: true,
+                        value: JSON.parse(data),
+                    });
+                    res();
+                }catch(e){
+                    rej(e);
+                }
+            });
+        });
     }
 }

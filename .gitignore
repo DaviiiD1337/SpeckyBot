@@ -1,6 +1,8 @@
 # Folders
+src/assets
 src/events/private
 src/commands/private
+src/tmp
 require-cache/
 db/
 
@@ -12,6 +14,8 @@ db/
 *.avi
 *.csv
 *.ttf
+*.sqlite
+*.ignore
 
 # Secret Files
 template.config.json

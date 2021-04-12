@@ -1,11 +1,12 @@
 module.exports = {
     name: "pause",
-    description: "Pauses the playing song!",
-    usage: "",
-    category: `music`,
-    aliases: ["paus"]
+    description: "Pauses the music!",
+    category: "music",
+    aliases: []
 }
 
 module.exports.run = async (bot, msg) => {
-    bot.music.pause(msg);
+    if(!bot.music.isPlaying(msg)) throw new Error('Not playing');
+    await bot.music.pause(msg);
+    return bot.cmdSuccess('Playback paused.');
 }

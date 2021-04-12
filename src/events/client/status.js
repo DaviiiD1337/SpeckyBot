@@ -1,14 +1,24 @@
 module.exports = {
-    event: "interval_10_sec"
+    event: ["ready","*/15 * * * * *"]
 }
 
+let lastStatus = '';
+
 module.exports.call = async (bot) => {
+    if(!bot.user) return;
+
     const statuses = [
-        `${bot.guilds.size} servers!`,
+        `${bot.guilds.cache.size} servers!`,
         `${bot.config.prefix}help`,
         `${bot.config.prefix}invite`,
-        `over ${bot.users.size} users!`
+        `over ${bot.users.cache.size} users!`,
+        `${bot.commands.size} commands!`,
+        ...bot.cache.statuses
     ];
 
-    bot.user.setActivity(statuses.pick(), {type: "WATCHING", url:"https://github.com/SpeckyYT/SpeckyBot"});
+    let newStatus = lastStatus;
+
+    while(lastStatus == newStatus) newStatus = statuses.pick();
+
+    bot.user.setActivity(newStatus, {type: "WATCHING"});
 }

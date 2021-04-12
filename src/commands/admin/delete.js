@@ -2,10 +2,10 @@ module.exports = {
     name: "delete",
     description: "Deletes a message for you!",
     usage: `<messageID>`,
-    category: `admin`,
+    category: "admin",
     aliases: ["deletion", "msgdelet","msgdelete"],
-    perms: ['MANAGE_MESSAGES'],
-    cmdperms: ['MANAGE_MESSAGES']
+    userPerms: ['MANAGE_MESSAGES'],
+    botPerms: ['MANAGE_MESSAGES']
 }
 
 module.exports.run = async (bot, msg) => {
@@ -14,7 +14,7 @@ module.exports.run = async (bot, msg) => {
         msg.channel.send("You have to define a message to delete");
         return;
     }
-    msg.channel.fetchMessage(args[0]).then(ms => {
+    msg.channel.messages.fetch(args[0]).then(ms => {
         if(ms.deletable){
             msg.delete();
             ms.delete();

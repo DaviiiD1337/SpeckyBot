@@ -1,8 +1,7 @@
 module.exports = {
     name: "serverinfo",
     description: "Informations about the server you're in!",
-    usage: "",
-    category: `utilities`,
+    category: "utilities",
     aliases: ["si","serveri"]
 }
 
@@ -11,7 +10,7 @@ module.exports.run = async (bot, msg) => {
     let bots = 0;
     let humans = 0;
 
-    msg.guild.members.forEach(member => {
+    msg.guild.members.cache.forEach(member => {
         if(member.user.bot){
             bots++;
         }else{
@@ -22,7 +21,7 @@ module.exports.run = async (bot, msg) => {
     const embed = bot.embed()
     .setAuthor(msg.author.username)
     .setDescription("These are the informations about the server you're in!")
-    .setImage(msg.guild.iconURL)
+    .setImage(msg.guild.iconURL())
     .addField("Server name", `${msg.guild.name}`)
     .addField("Server ID", `${msg.guild.id}`)
     .addField("Server region", `${msg.guild.region}`)

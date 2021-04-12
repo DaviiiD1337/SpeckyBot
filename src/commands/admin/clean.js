@@ -2,10 +2,10 @@ module.exports = {
     name: "clean",
     description: "Deletes a message for you!",
     usage: `<bots/users>`,
-    category: `admin`,
+    category: "admin",
     aliases: ["cls"],
-    perms: ['MANAGE_MESSAGES'],
-    cmdperms: ['MANAGE_MESSAGES']
+    userPerms: ['MANAGE_MESSAGES'],
+    botPerms: ['MANAGE_MESSAGES']
 }
 
 module.exports.run = async (bot, msg) => {
@@ -27,32 +27,24 @@ module.exports.run = async (bot, msg) => {
         size = 25;
     }
 
+    let isBot;
+
     switch(cmd){
         case "bots":
         case "bot":
         case "robot":
         case "robots":
-            msg.channel.fetchMessages({limit: size}).then(msgs => {
-                msgs.forEach(ms => {
-                    if(ms.author.bot){
-                        ms.delete();
-                    }
-                })
-            });
-            break;
+            isBot = true; break;
         case "users":
         case "user":
         case "member":
         case "members":
-            msg.channel.fetchMessages({limit: size}).then(msgs => {
-                msgs.forEach(ms => {
-                    if(!ms.author.bot){
-                        ms.delete();
-                    }
-                })
-            });
-            break;
+            isBot = false; break;
         default:
-            return bot.cmdError(`Sub-command **${cmd}** not found.\nAvaiable ones: \`bots\` and \`users\``)
+            return bot.cmdError(`Sub-command **${cmd}** not found.\nAvaiable ones: \`bots\` and \`users\``);
     }
+
+    return msg.channel.messages
+    .fetch({limit: size})
+    .then(msgs => msgs.map(ms => isBot == ms.author.bot ? ms.delete() : null));
 }

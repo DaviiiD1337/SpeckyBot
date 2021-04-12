@@ -1,14 +1,13 @@
 module.exports = {
     name: "allemotes",
     description: "Sends all emotes which the bot can access to.",
-    usage: "",
-    category: `owner`,
+    category: "owner",
     aliases: ["allemojis"]
 }
 
 module.exports.run = async (bot, msg) => {
     let arr = [];
-    bot.emojis.forEach(emoji => {
+    bot.emojis.cache.forEach(emoji => {
         arr.push(emoji);
         if(arr.join('').length > 1950){
             msg.channel.send(arr.join(''));

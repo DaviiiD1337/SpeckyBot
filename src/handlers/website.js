@@ -1,44 +1,61 @@
 const express = require('express');
 const app = express();
 
-const { readFile } = require('fs');
+const { createInterface } = require('readline');
+const { createReadStream } = require('fs');
 const { createServer } = require('net');
+const { join } = require('path');
 
-module.exports = async (bot) => {
+module.exports = (bot) => {
+    if(global.website) global.website.close();
+
     try{
-        app.get('/log', async function (req, res) {
-            readFile('..\\commands.log',(err,data) => {
-                res.send(String(data).split("\n").reverse().join("<br>"));
-            });
+        app.get('/log', (req, res) => {
+            const file = join(process.cwd(),'..','commands.log');
+            const lines = [];
+            const rl = createInterface(
+                {
+                    input: createReadStream(file),
+                }
+            );
+            rl.on(
+                'line',
+                line => lines.push(line)
+            );
+            rl.on(
+                'close',
+                () => res.send(lines.reverse().slice(0,5000).join("<br>"))
+            );
         });
         let port = 50000;
-        async function end(err){
+        function end(err){
             if(err){
-                console.log(`Wasn't able to access any port`.error);
+                bot.log(`Wasn't able to access any port`.error);
             }else{
-                console.log(`${"Logged on port".warn} ${port.toString().black.bgYellow}`)
-                app.listen(port,()=>{});
+                bot.log(`${"Logged on port".warn} ${port.toString().black.bgYellow}`)
+                const server = app.listen(port,()=>{});
+                global.website = server;
             }
         }
-        async function check(fn){
+        function check(fn){
             ((port,fn)=>{
                 const tester = createServer()
-                .once('error', async function (err) {
+                .once('error', function (err) {
                     if (err.code != 'EADDRINUSE') return fn(err);
                     fn(null, true)
                 })
-                .once('listening', async function() {
-                    tester.once('close', async function() {
+                .once('listening', function() {
+                    tester.once('close', function() {
                         fn(null, false)
                     })
                     .close()
                 })
                 .listen(port);
-            })(port, async (err,taken) => {
+            })(port, (err,taken) => {
                 if(err || taken){
                     port++;
                     if(port < 2**16){
-                        await check(end);
+                        check(end);
                     }else{
                         return fn(true);
                     }
@@ -47,6 +64,6 @@ module.exports = async (bot) => {
                 }
             });
         }
-        await check(end);
+        check(end);
     }catch(err){}
 }

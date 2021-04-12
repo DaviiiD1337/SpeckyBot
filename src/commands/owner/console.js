@@ -2,7 +2,7 @@ module.exports = {
     name: "console",
     description: "Runs a command on console from Discord!",
     usage: `<command> [args]`,
-    category: `owner`,
+    category: "owner",
     aliases: ["cons"]
 }
 
@@ -19,7 +19,7 @@ module.exports.run = async (bot, msg) => {
 
     if(func){
         bot.log(String(command).toUpperCase().info);
-        return await func(bot, msg);
+        return func(bot, msg);
     }else{
         return bot.cmdError("`"+command+"` is not a valid console command");
     }

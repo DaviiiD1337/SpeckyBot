@@ -2,18 +2,21 @@ module.exports = {
     name: "slots",
     description: "Lets you play slots!",
     usage: `<bet> <slots quantity>`,
-    category: `economy`,
+    category: "economy",
     aliases: ["slot"],
 }
 
+const db = require('quick.db');
+const economy = new db.table('economy');
+
 module.exports.run = async (bot, msg) => {
-    let emojis = msg.guild.emojis.filter(e => e.available);
+    let emojis = msg.guild.emojis.cache.filter(e => e.available);
     let slots = 3;
     let global = false;
 
     if(emojis.size < 5){
         global = true;
-        emojis = bot.emojis.filter(e => e.available);
+        emojis = bot.emojis.cache.filter(e => e.available);
     }
 
     const obet = msg.args[0];
@@ -40,15 +43,15 @@ module.exports.run = async (bot, msg) => {
                 emote = neweArray[0];
             }else{
                 if(global){
-                    emote = bot.emojis.random().toString();
+                    emote = bot.emojis.cache.random().toString();
                 }else{
-                    emote = msg.guild.emojis.random().toString();
+                    emote = msg.guild.emojis.cache.random().toString();
                 }
             }
         }else if(global){
-            emote = bot.emojis.random().toString();
+            emote = bot.emojis.cache.random().toString();
         }else{
-            emote = msg.guild.emojis.random().toString();
+            emote = msg.guild.emojis.cache.random().toString();
         }
 
         if(won){
@@ -69,11 +72,7 @@ module.exports.run = async (bot, msg) => {
 
     const gain = Math.floor(Math.max(emojis.size/15,1.25) * Math.ceil(bet**1.15 * Math.max((slots-1)**1.4,1)));
 
-    if(won){
-        bot.economy[msg.author.id].money = bot.economy[msg.author.id].money + gain;
-    }else{
-        bot.economy[msg.author.id].money = bot.economy[msg.author.id].money - bet;
-    }
+    economy.add(`${msg.author.id}.money`,won?gain:-bet);
 
-    msg.channel.send(`${eArray.join('')}${won ? `\nYou won ${gain}₪! 🎰` : ""}`);
+    return msg.channel.send(`${eArray.join('')}${won ? `\nYou won ${gain}₪! 🎰` : ""}`);
 }

@@ -2,24 +2,33 @@ module.exports = {
     name: "eval",
     description: "Runs custom code directly from Discord!",
     usage: `<code in js>`,
-    category: `owner`,
+    category: "owner",
     aliases: ["evaluate"],
 }
 
 const { inspect } = require("util");
+const i = (s,d=0) => inspect(s,false,d);
 
 module.exports.run = async (bot, msg) => {
-    const toEval = msg.cmdContent;
-
     let evaluated;
 
-    if (!toEval) return bot.cmdError("You need to insert valid JavaScript code");
-
     try{
-        evaluated = inspect(eval(toEval),{depth:0});
+        evaluated = eval(msg.cmdContent);
     }catch(e){
-        return msg.channel.send(`Error while evaluating.\n\n\`\`\`${e.message}\`\`\``);
+        return bot.cmdError(`Error while evaluating.\n\n${String(e.message).code()}`);
     }
 
-    return msg.channel.send(`${evaluated.length<1980?"```js\n":''}${evaluated}${evaluated.length<1990?"\n```":''}`, { split: '\n' })
+    const m = await msg.channel.send(i(evaluated).slice(0,1980).code('js'));
+
+    if(evaluated instanceof Array){
+        if(evaluated.some(i => i instanceof Promise)){
+            await Promise.all(evaluated).catch(e=>e);
+            return m.edit(i(evaluated,1).slice(0,1980).code('js'));
+        }
+    }
+
+    if(evaluated instanceof Promise){
+        await evaluated.catch(e=>e);
+        return m.edit(i(evaluated,1).slice(0,1980).code('js'));
+    }
 }

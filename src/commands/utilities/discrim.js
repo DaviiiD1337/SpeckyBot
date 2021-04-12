@@ -1,8 +1,8 @@
 module.exports = {
     name: "discrim",
     description: "You want to change your discriminator without Nitro?",
-    usage: `[discriminator]`,
-    category: `utilities`,
+    usage: "[discriminator]",
+    category: "utilities",
     aliases: ["discrims","discriminator","discriminators","discrimin","discrimins"]
 }
 
@@ -17,7 +17,7 @@ module.exports.run = async (bot, msg) => {
         }
     }
     const discrims = [];
-    bot.users.forEach(user => {
+    bot.users.cache.forEach(user => {
         if(discrims.length < 10){
             if(discriminator == user.discriminator && msg.author.username != user.username){
                 discrims.push(user.tag)

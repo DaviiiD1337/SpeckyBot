@@ -1,14 +1,14 @@
-const { RichEmbed } = require('discord.js');
 const { readdirSync } = require('fs');
-const config = require('./settings');
+const { join } = require('path');
+const config = require(join(__dirname,'settings'));
 
 module.exports.runGame = async (channel, players_, bot) => {
     bot.minigames = Array.isArray(bot.minigames) ? bot.minigames : [];
 
-    const gameFiles = readdirSync('.\\commands\\games\\SpeckySays\\minigames').filter(file => file.match(bot.supportedFiles))
+    const gameFiles = readdirSync(join(__dirname,'minigames')).filter(file => file.match(bot.supportedFiles))
 
     for (const file of gameFiles) {
-        const game = require(`.\\minigames\\${file}`);
+        const game = require(join(__dirname,"minigames",file));
         if(bot.minigames.length){
             bot.minigames.some((val,ind,arr) => {
                 if(val.startMessage == game.startMessage){
@@ -36,7 +36,7 @@ module.exports.runGame = async (channel, players_, bot) => {
     let rounds = 1
     let lastGame = null
     // example of how to start a game
-    let settings = require('.\\settings');
+    let settings = require(join(__dirname,'settings'));
 
     await (async function gameLoop(){
         // chooses a random minigame
@@ -80,10 +80,10 @@ module.exports.runGame = async (channel, players_, bot) => {
 
         settings = settingsOut
 
-        await sleep(1000)
+        await bot.sleep(1000)
         playersOut = [...new Set(playersOut)]
         // say whos out
-        const embed = new RichEmbed()
+        const embed = bot.membed()
         if (playersOut.length > 0) {
             embed.setDescription(`${playersOut.join(', ')} ${playersOut.length > 1 ? "are" : "is"} out!`)
             .setColor(`#FF230F`)
@@ -93,7 +93,7 @@ module.exports.runGame = async (channel, players_, bot) => {
         }
 
         channel.send(embed)
-        await sleep(1000)
+        await bot.sleep(1000)
 
         if (playersLeft.length < 1) {
             winners = playersOut
@@ -108,14 +108,10 @@ module.exports.runGame = async (channel, players_, bot) => {
     })();
 
     if(!prematurelyEnd){
-        const embed = new RichEmbed()
+        const embed = bot.membed()
         .setTitle('The game has ended!')
         .setDescription(`${winners.join(', ')} won with ${rounds} point${rounds !== 1 ? 's' : ''}! GG!`)
         .setColor('#FFBE11');
         return channel.send(embed);
     }
-}
-
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
 }

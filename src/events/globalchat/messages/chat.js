@@ -1,12 +1,15 @@
 module.exports = {
-    event: "message"
+    event: "globalMessage"
 }
 
 module.exports.call = async (bot, msg) => {
-    if(msg.author.bot) return;
-    const check = (c) => c.topic ? c.topic.toLowerCase().includes('[global]') : false
-    if(check(msg.channel)){
-        bot.channels.filter(chan => check(chan) && msg.channel.id != chan.id).forEach(chan => {
+    msg.content = bot.globalChatCensor(msg.content);
+
+    bot.globalchats
+    .filter(chan => msg.channel.id != chan.id)
+    .filter(chan => chan.permissionsFor(bot.user).has(bot.perms.globalchat))
+    .forEach(chan => {
+        bot.cache.globalchatsent.push(
             chan.send(bot.globalChatEmbed(msg))
             .then(m => {
                 if(bot.cache.globalchat.has(msg.id)){
@@ -15,7 +18,7 @@ module.exports.call = async (bot, msg) => {
                     bot.cache.globalchat.set(msg.id,[msg,m]);
                 }
             })
-            .catch(()=>{});
-        })
-    }
+            .catch(()=>{})
+        )
+    })
 }

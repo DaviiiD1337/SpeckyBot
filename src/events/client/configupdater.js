@@ -1,7 +1,7 @@
 module.exports = {
-    event: "interval_1_min"
+    event: "*/30 * * * * *"
 }
 
 module.exports.call = async (bot) => {
-    bot.loadConfig(bot);
+    bot.loadConfig();
 }

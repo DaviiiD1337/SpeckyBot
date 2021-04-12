@@ -1,12 +1,15 @@
 module.exports = {
     name: "volume",
     description: "Changes the volume of the player!",
-    usage: "",
-    category: `music`,
-    aliases: []
+    usage: '<percent>',
+    category: "music"
 }
 
 module.exports.run = async (bot, msg) => {
-    const { args } = msg;
-    bot.music.volumeFunction(msg, args.join(' '))
+    if(!bot.music.isPlaying(msg)) throw new Error('Not playing');
+    const volume = parseInt(msg.cmdContent);
+    if(isNaN(volume)) return bot.cmdError('Volume is not a number');
+    const newVolume = volume.clamp(10,250);
+    bot.music.setVolume(msg, newVolume);
+    return bot.cmdSuccess(`Volume got set to ${newVolume}%`);
 }

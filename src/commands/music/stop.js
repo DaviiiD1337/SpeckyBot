@@ -1,11 +1,12 @@
 module.exports = {
-    name: "leave",
-    description: "Does the bot leave the VC!",
-    usage: "",
-    category: `music`,
-    aliases: ["l","stop"]
+    name: "stop",
+    description: "Stops the music!",
+    category: "music",
+    aliases: []
 }
 
 module.exports.run = async (bot, msg) => {
+    if(!bot.music.isPlaying(msg)) throw new Error('Not playing');
     bot.music.stop(msg);
+    return bot.cmdSuccess('Playback stopped.');
 }

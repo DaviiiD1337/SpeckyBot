@@ -1,25 +1,21 @@
 module.exports = {
     name: "reboot",
     description: "Reboots the bot down!",
-    usage: "",
-    category: `owner`,
-    aliases: []
+    category: "owner"
 }
 
+const { join } = require('path');
+
 module.exports.run = async (bot, msg) => {
+    await msg.channel.send('Rebooting!');
 
     // Remove Listeners
     bot.removeAllListeners();
 
-    // Remove Intervals
-    bot.intervals.forEach(i => {
-        bot.clearInterval(i)
-    })
-
     // Destroys Bot
-    await bot.destroy();
+    bot.destroy();
 
     delete require.cache;
 
-    return require(process.cwd()+'\\bot.js')(bot);
+    return require(join(process.cwd(),'bot.js'))(bot);
 }
